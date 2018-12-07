@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,19 +10,24 @@ namespace Day3
     {
         public static void Main(string[] args)
         {
-            var regex1 = "[0-9]+,[0-9]+";
-            var regex2 = "[0-9]+x[0-9]+";
+            var regex1 = "#[0-9]+";
+            var regex2 = "[0-9]+,[0-9]+";
+            var regex3 = "[0-9]+x[0-9]+";
             
             var input = File.ReadAllLines("input.txt")
                 .Select(x => 
                 {
                     var match1 = Regex.Match(x, regex1)
                         .ToString()
+                        .Replace("#", "");
+
+                    var match2 = Regex.Match(x, regex2)
+                        .ToString()
                         .Split(',')
                         .Select(z => int.Parse(z))
                         .ToArray();
 
-                    var match2 = Regex.Match(x, regex2)
+                    var match3 = Regex.Match(x, regex3)
                         .ToString()
                         .Split('x')
                         .Select(z => int.Parse(z))
@@ -29,10 +35,11 @@ namespace Day3
 
                     return new Claim()
                     {
-                        FromTheLeft = match1[0],
-                        FromTheTop = match1[1],
-                        Width = match2[0],
-                        Height = match2[1]
+                        Id = match1,
+                        FromTheLeft = match2[0],
+                        FromTheTop = match2[1],
+                        Width = match3[0],
+                        Height = match3[1]
                     };
                 })
                 .ToArray();
@@ -47,19 +54,13 @@ namespace Day3
             var result = 0;
             var fabric = new int[1000,1000];
 
-            foreach (var claim in input)
+            foreach (var (x,y) in input.SelectMany(x => x.GetInches()))
             {
-                for (int i = claim.FromTheLeft; i < claim.FromTheLeft + claim.Width; i++)
-                {
-                    for (int j = claim.FromTheTop; j < claim.FromTheTop + claim.Height; j++)
-                    {
-                        fabric[i,j] = fabric[i,j] + 1;
+                fabric[x,y]++;
 
-                        if (fabric[i,j] == 2)
-                        {
-                            result++;
-                        }
-                    }
+                if (fabric[x,y] == 2)
+                {
+                    result++;
                 }
             }
             
@@ -70,15 +71,36 @@ namespace Day3
 
         public static void RunPart2(Claim[] input)
         {
-            
+            var result = 0;
+            var fabric = new int[1000,1000];
+
+            Console.WriteLine("Day 3 - Part 2");
+            Console.WriteLine("Result: " + result);
+            Console.WriteLine("End");
         }
 
         public class Claim
         {
+            public string Id { get; set; }
             public int FromTheLeft { get; set; }
             public int FromTheTop { get; set; }
             public int Width { get; set; }
             public int Height { get; set; }
+
+            public IList<(int,int)> GetInches()
+            {
+                var inches = new List<(int,int)>();
+
+                for (int x = FromTheLeft; x < FromTheLeft + Width; x++)
+                {
+                    for (int y = FromTheTop; y < FromTheTop + Height; y++)
+                    {
+                        inches.Add((x, y));
+                    }
+                }
+
+                return inches;
+            }
         }
     }
 }
