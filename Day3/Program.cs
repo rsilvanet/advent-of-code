@@ -71,8 +71,33 @@ namespace Day3
 
         public static void RunPart2(Claim[] input)
         {
-            var result = 0;
+            var result = string.Empty;
             var fabric = new int[1000,1000];
+
+            foreach (var (x,y) in input.SelectMany(x => x.GetInches()))
+            {
+                fabric[x,y]++;
+            }
+
+            foreach (var claim in input)
+            {
+                var overlapFound = false;
+
+                foreach (var (x,y) in claim.GetInches())
+                {
+                    if (fabric[x,y] > 1)
+                    {
+                        overlapFound = true;
+                        break;
+                    }
+                }
+
+                if (!overlapFound)
+                {
+                    result = claim.Id;
+                    break;
+                }
+            }
 
             Console.WriteLine("Day 3 - Part 2");
             Console.WriteLine("Result: " + result);
