@@ -15,6 +15,7 @@ namespace Day4
                 .ToArray();
 
             RunPart1(input);
+            RunPart2(input);
         }
 
         public static void RunPart1(string[] input)
@@ -62,7 +63,6 @@ namespace Day4
             var topSleepGuard = dictionary.OrderBy(x => x.Value.Sum()).Last();
             var topSleepMinuteIndex = 0;            
             var topSleepMinuteValue = 0;
-            
 
             for (int i = 0; i < 60; i++)
             {
@@ -72,10 +72,73 @@ namespace Day4
                     topSleepMinuteValue = topSleepGuard.Value[i];
                 }
             }
-
             
             Console.WriteLine("Day 4 - Part 1");
             Console.WriteLine("Result: " + topSleepGuard.Key * topSleepMinuteIndex);
+            Console.WriteLine("End");
+        }
+
+        public static void RunPart2(string[] input)
+        {
+            var currentGuard = 0;
+            var currentSleepMinute = 0;
+            var regexGuard = "#[0-9]+";
+            var regexHour = "[0-9]+:[0-9]+";
+            var dictionary = new Dictionary<int, int[]>();
+
+            foreach (var line in input)
+            {
+                var matchGuard = Regex.Match(line, regexGuard);
+
+                if (matchGuard.Success)
+                {
+                    currentGuard = int.Parse(matchGuard.ToString().Replace("#", ""));
+                }
+
+                if (currentGuard > 0)
+                {
+                    if (!dictionary.ContainsKey(currentGuard))
+                    {
+                        dictionary.Add(currentGuard, new int[60]);
+                    }
+
+                    var matchHour = Regex.Match(line, regexHour);
+
+                    if (line.Contains("falls asleep"))
+                    {
+                        currentSleepMinute = int.Parse(matchHour.ToString().Split(':')[1]);
+                    }
+                    else if (line.Contains("wakes up"))
+                    {
+                        var wakeMinute = int.Parse(matchHour.ToString().Split(':')[1]);
+
+                        for (int i = currentSleepMinute; i < wakeMinute; i++)
+                        {
+                            dictionary[currentGuard][i]++;
+                        }
+                    }
+                }
+            }
+
+            var topSleepMinuteIndex = 0;         
+            var topSleepMinuteValue = 0;
+            var topSleepGuardByMinute = 0;
+
+            foreach (var item in dictionary)
+            {
+                for (int i = 0; i < 60; i++)
+                {
+                    if (item.Value[i] > topSleepMinuteValue)
+                    {
+                        topSleepMinuteIndex = i;
+                        topSleepMinuteValue = item.Value[i];
+                        topSleepGuardByMinute = item.Key;
+                    }
+                }            
+            }
+            
+            Console.WriteLine("Day 4 - Part 2");
+            Console.WriteLine("Result: " + topSleepGuardByMinute * topSleepMinuteIndex);
             Console.WriteLine("End");
         }
     }
