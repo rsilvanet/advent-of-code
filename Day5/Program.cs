@@ -10,9 +10,10 @@ namespace Day5
             var input = File.ReadAllText("input.txt");
 
             RunPart1(input);
+            RunPart2(input);
         }
 
-        public static void RunPart1(string input)
+        private static int DoReactions(string input)
         {
             var stillRemoving = true;
 
@@ -30,8 +31,34 @@ namespace Day5
                 }
             }
 
+            return input.Length;
+        }
+
+        public static void RunPart1(string input)
+        {
             Console.WriteLine("Day 5 - Part 1");
-            Console.WriteLine("Result: " + input.Length);
+            Console.WriteLine("Result: " + DoReactions(input));
+            Console.WriteLine("End");
+        }
+
+        public static void RunPart2(string input)
+        {
+            var lowerLength = int.MaxValue;
+
+            for (int i = 65; i <= 90; i++)
+            {
+                var tempChar = ((char)i).ToString();
+                var tempInput = input.Replace(tempChar, string.Empty, StringComparison.InvariantCultureIgnoreCase);
+                var lengthAfterReactions = DoReactions(tempInput);
+
+                if (lengthAfterReactions < lowerLength)
+                {
+                    lowerLength = lengthAfterReactions;
+                }
+            }
+            
+            Console.WriteLine("Day 5 - Part 2");
+            Console.WriteLine("Result: " + lowerLength);
             Console.WriteLine("End");
         }
     }
