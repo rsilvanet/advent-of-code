@@ -19,10 +19,11 @@ namespace Day6
                 })
                 .ToArray();
 
-            RunPart1(input);
+            var matrix = RunPart1(input);
+            RunPart2(input, matrix);
         }
 
-        public static void RunPart1(Point[] input)
+        public static char?[,] RunPart1(Point[] input)
         {
             var maxX = input.Max(point => point.X) + 1;
             var maxY = input.Max(point => point.Y) + 1;
@@ -69,7 +70,43 @@ namespace Day6
             }
 
             Console.WriteLine("Day 6 - Part 1");
-            Console.WriteLine("Result: " + input.Where(s => !s.Infinite).Max(s => s.Size));
+            Console.WriteLine("Result: " + input.Where(p => !p.Infinite).Max(p => p.Size));
+            Console.WriteLine("End");
+
+            return matrix;
+        }
+
+        public static void RunPart2(Point[] input, char?[,] matrix)
+        {
+            for (int x = 0; x < matrix.GetLength(0); x++)
+            {
+                for (int y = 0; y < matrix.GetLength(1); y++)
+                {
+                    if (matrix[x, y] == '.')
+                    {
+                        continue;
+                    }
+
+                    var distance = 0;
+
+                    foreach (var point in input)
+                    {
+                        distance += point.CalculateDistance(x, y);
+                    }
+
+                    if (distance < 10000)
+                    {
+                        var point = input
+                            .Where(p => p.Value == matrix[x, y])
+                            .Single();
+                        
+                        point.CountInRange++;
+                    }
+                }
+            }
+
+            Console.WriteLine("Day 6 - Part 2");
+            Console.WriteLine("Result: " + input.Where(p => p.Size == p.CountInRange).Count());
             Console.WriteLine("End");
         }
 
@@ -86,6 +123,7 @@ namespace Day6
             public char? Value { get; set; }
             public int Size { get; set; }
             public bool Infinite { get; set; }
+            public int CountInRange { get; set; }
 
             public int CalculateDistance(int x, int y)
             {
