@@ -25,9 +25,7 @@ namespace Day6
 
         public static char?[,] RunPart1(Point[] input)
         {
-            var maxX = input.Max(point => point.X) + 1;
-            var maxY = input.Max(point => point.Y) + 1;
-            var matrix = new char?[maxX, maxY];
+            var matrix = new char?[500, 500];
 
             for (int i = 0; i < input.Length; i++)
             {
@@ -39,9 +37,9 @@ namespace Day6
                 point.Size++;
             }
 
-            for (int x = 0; x < maxX; x++)
+            for (int x = 0; x < matrix.GetLength(0); x++)
             {
-                for (int y = 0; y < maxY; y++)
+                for (int y = 0; y < matrix.GetLength(1); y++)
                 {
                     if (matrix[x, y] == null)
                     {
@@ -60,7 +58,7 @@ namespace Day6
                             matrix[x, y] = point.Value;
                             point.Size++;
 
-                            if (x == 0 || y == 0 || x == maxX || y == maxY)
+                            if (x == 0 || y == 0 || x == 499 || y == 499)
                             {
                                 point.Infinite = true;
                             }
@@ -78,35 +76,21 @@ namespace Day6
 
         public static void RunPart2(Point[] input, char?[,] matrix)
         {
+            var size = 0;            
+
             for (int x = 0; x < matrix.GetLength(0); x++)
             {
                 for (int y = 0; y < matrix.GetLength(1); y++)
                 {
-                    if (matrix[x, y] == '.')
+                    if (input.Sum(p => p.CalculateDistance(x, y)) < 10000)
                     {
-                        continue;
-                    }
-
-                    var distance = 0;
-
-                    foreach (var point in input)
-                    {
-                        distance += point.CalculateDistance(x, y);
-                    }
-
-                    if (distance < 10000)
-                    {
-                        var point = input
-                            .Where(p => p.Value == matrix[x, y])
-                            .Single();
-                        
-                        point.CountInRange++;
+                        size++;
                     }
                 }
             }
 
             Console.WriteLine("Day 6 - Part 2");
-            Console.WriteLine("Result: " + input.Where(p => p.Size == p.CountInRange).Count());
+            Console.WriteLine("Result: " + size);
             Console.WriteLine("End");
         }
 
@@ -123,7 +107,6 @@ namespace Day6
             public char? Value { get; set; }
             public int Size { get; set; }
             public bool Infinite { get; set; }
-            public int CountInRange { get; set; }
 
             public int CalculateDistance(int x, int y)
             {
