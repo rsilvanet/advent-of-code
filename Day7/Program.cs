@@ -10,49 +10,44 @@ namespace Day7
         public static void Main(string[] args)
         {
             var input = File.ReadAllLines("input.txt")
-                .Select(line => (line.Substring(6, 1), line.Substring(37, 1)))
+                .Select(line => (line.Substring(5, 1), line.Substring(36, 1)))
                 .ToArray();
+
+            RunPart1(input);
         }
 
-        private static Item FindItem(Item currentItem, string letter)
+        public static void RunPart1((string first, string second)[] input)
         {
-            if (currentItem.Letter == letter)
+            var items = new List<Item>();
+
+            foreach (var line in input)
             {
-                return currentItem;
-            }
+                var first = items.Where(x => x.Letter == line.first).FirstOrDefault();
 
-            foreach (var item in currentItem.ItemsBefore)
-            {
-                return FindItem(currentItem);
-            }
-
-            return null;
-        }
-
-        public static void RunPart1((string, string)[] input)
-        {
-            var itemsList = new List<Item>();
-
-            foreach (var item in input)
-            {
-                if (currentItem == null)
+                if (first == null)
                 {
-                    var newItem = new Item(item.Item2);
-                    var newItemBefore = new Item(item.Item1);
-                    
-                    newItem.ItemsBefore.Add(newItemBefore);
-
-                    itemsList.Add(newItem);
-                    itemsList.Add(newItemBefore);
+                    first = new Item(line.first);
+                    items.Add(first);
                 }
 
-                var newItem = new Item(item.Item2);
-                var newItemBefore = new Item(item.Item1);
-                
-                newItem.ItemsBefore.Add(newItemBefore);
-            }
-        }
+                var second = items.Where(x => x.Letter == line.second).FirstOrDefault();
 
+                if (second == null)
+                {
+                    second = new Item(line.second);
+                    items.Add(second);
+                }
+
+                second.ItemsBefore.Add(first);
+            }
+
+            foreach (var item in items)
+            {
+                Console.WriteLine(item);
+            }
+
+            Console.WriteLine(items.Single(x => !x.ItemsBefore.Any()).Letter);
+        }
 
         public class Item
         {
@@ -60,10 +55,12 @@ namespace Day7
             {
                 Letter = letter;
                 ItemsBefore = new List<Item>();
+                Available = true;
             }
 
             public string Letter { get; set; }
             public List<Item> ItemsBefore { get; set; }
+            public bool Available { get; set; }
         }
     }
 }
