@@ -22,31 +22,38 @@ namespace Day7
 
             foreach (var line in input)
             {
-                var first = items.Where(x => x.Letter == line.first).FirstOrDefault();
+                var current = items.Where(x => x.Letter == line.first).FirstOrDefault();
 
-                if (first == null)
+                if (current == null)
                 {
-                    first = new Item(line.first);
-                    items.Add(first);
+                    current = new Item(line.first);
+                    items.Add(current);
                 }
 
-                var second = items.Where(x => x.Letter == line.second).FirstOrDefault();
+                var next = items.Where(x => x.Letter == line.second).FirstOrDefault();
 
-                if (second == null)
+                if (next == null)
                 {
-                    second = new Item(line.second);
-                    items.Add(second);
+                    next = new Item(line.second);
+                    items.Add(next);
                 }
 
-                second.ItemsBefore.Add(first);
+                current.NextItems.Add(next);
             }
+
+            var root = new Item("ROOT");
 
             foreach (var item in items)
             {
-                Console.WriteLine(item);
+                if (items.Any(x => x.NextItems.Any(z => z.Letter == item.Letter)))
+                {
+                    continue;
+                }
+
+                root.NextItems.Add(item);
             }
 
-            Console.WriteLine(items.Single(x => !x.ItemsBefore.Any()).Letter);
+            Console.WriteLine(root.NextItems.Count);
         }
 
         public class Item
@@ -54,12 +61,12 @@ namespace Day7
             public Item(string letter)
             {
                 Letter = letter;
-                ItemsBefore = new List<Item>();
+                NextItems = new List<Item>();
                 Available = true;
             }
 
             public string Letter { get; set; }
-            public List<Item> ItemsBefore { get; set; }
+            public List<Item> NextItems { get; set; }
             public bool Available { get; set; }
         }
     }
