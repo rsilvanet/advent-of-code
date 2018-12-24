@@ -45,15 +45,65 @@ namespace Day7
 
             foreach (var item in items)
             {
-                if (items.Any(x => x.NextItems.Any(z => z.Letter == item.Letter)))
-                {
-                    continue;
-                }
+                item.Prerequisites = items.Where(x => x.NextItems.Any(z => z.Letter == item.Letter)).ToList();
 
-                root.NextItems.Add(item);
+                if (!item.Prerequisites.Any())
+                {
+                    root.NextItems.Add(item);
+                }           
             }
 
-            Console.WriteLine(root.NextItems.Count);
+            var result = string.Empty;
+
+            while (items.Any(x => x.Available))
+            {
+                result += GetNext(root).Letter;
+            }
+
+            Console.WriteLine("Day 7 - Part 1");
+            Console.WriteLine("Result: " + result);
+            Console.WriteLine("End");
+        }
+
+        private static Item GetNext(Item root)
+        {
+            var possibleNextItems = new List<Item>();
+
+            foreach (var item in root.NextItems)
+            {
+                AddPossibleNextItems(item, possibleNextItems);
+            }
+
+            var next = possibleNextItems.OrderBy(x => x.Letter).First();
+
+            next.Available = false;
+
+            return next;
+        }
+
+        private static void AddPossibleNextItems(Item start, IList<Item> possibleNextItems)
+        {
+            if (start.Available && !start.Prerequisites.Any(x => x.Available))
+            {
+                possibleNextItems.Add(start);
+            }
+            else
+            {
+                foreach (var item in start.NextItems)
+                {
+                    if (item.Available && !item.Prerequisites.Any(x => x.Available))
+                    {
+                        possibleNextItems.Add(item);
+                    }
+                    else 
+                    {
+                        foreach (var item2 in item.NextItems)
+                        {
+                            AddPossibleNextItems(item2, possibleNextItems);
+                        }
+                    }
+                }
+            }
         }
 
         public class Item
@@ -67,7 +117,20 @@ namespace Day7
 
             public string Letter { get; set; }
             public List<Item> NextItems { get; set; }
+            public List<Item> Prerequisites { get; set; }
             public bool Available { get; set; }
+
+            public override string ToString()
+            {
+                var result = Letter;
+
+                foreach (var item in NextItems)
+                {
+                    result +=  " -> " + item.Letter;
+                }
+
+                return result;
+            }
         }
     }
 }
